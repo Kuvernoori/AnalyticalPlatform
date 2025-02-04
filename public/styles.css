@@ -5,46 +5,100 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #2c1a1a;
-    color: #f5f5f5;
-    padding: 20px;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #2b2c5d, #1c1a2c);
+    color: #ffffff;
+    padding: 30px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-h1, p {
-    color: #f5f5f5;
+h1, h2 {
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
 }
 
-input, button {
+label {
+    display: block;
+    margin: 10px 0 5px;
+    font-size: 1rem;
+}
+
+input, select, button {
     padding: 10px;
-    margin: 10px;
+    margin: 10px 5px 15px;
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 200px;
 }
 
-#cityInput {
-    width: 250px;
-    background-color: #3c2b2b;
-    color: #f5f5f5;
+input[type="date"] {
+    background-color: #3c3c5e;
+    color: #ffffff;
 }
 
-#cityInput:focus {
+input[type="date"]:focus {
     outline: none;
-    background-color: #532e2e;
+    background-color: #505074;
 }
 
-#getWeatherBtn {
-    background-color: #9b1c1c;
-    color: #f5f5f5;
+select {
+    background-color: #3c3c5e;
+    color: #ffffff;
+}
+
+select:focus {
+    outline: none;
+    background-color: #505074;
+}
+
+button {
+    background-color: #f04e4e;
+    color: #ffffff;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-#weatherInfo {
+button:hover {
+    background-color: #d63b3b;
+}
+
+#metrics {
     margin-top: 20px;
+    background-color: #3c3c5e;
+    padding: 15px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
+    text-align: left;
 }
 
-#weatherInfo p {
-    font-size: 18px;
-    margin: 5px 0;
+#metrics p {
+    font-size: 1rem;
+    margin: 8px 0;
+}
+
+#chart {
+    background: linear-gradient(135deg, #ffffff, #f3f3f3);
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 900px;
+    width: 100%;
+    height: 500px;
+    margin: 40px 0;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
 }

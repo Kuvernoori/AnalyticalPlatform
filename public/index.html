@@ -3,19 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather</title>
+    <title>Weather and Metrics</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <input type="text" id="cityInput" placeholder="Enter city">
-    <button id="getWeatherBtn">Show Weather</button>
-
-    <div id="weatherInfo">
-        <p>Temperature: <span id="temperature"></span></p>
-        <p>Wind Speed: <span id="windSpeed"></span></p>
-        <p>Humidity: <span id="humidity"></span></p>
+    <div>
+        <h2>Metrics</h2>
+        <label for="field">Select Field:</label>
+        <select id="field">
+            <option value="temperature">Temperature</option>
+            <option value="humidity">Humidity</option>
+            <option value="windSpeed">Wind Speed</option>
+        </select>
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" name="startDate">
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" name="endDate">
+        <button id="getMetricsBtn">Get Metrics</button>
+        <button id="getChartBtn">Show Chart</button>
+        <div id="metrics">
+            <p>Average: <span id="avg"></span></p>
+            <p>Min: <span id="min"></span></p>
+            <p>Max: <span id="max"></span></p>
+            <p>Standard Deviation: <span id="stdDev"></span></p>
+        </div>
     </div>
-
+    <div>
+        <h2>Chart</h2>
+        <canvas id="chart"></canvas>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

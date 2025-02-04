@@ -24,6 +24,9 @@ router.get('/weather', async (req, res) => {
             windSpeed: response.data.wind.speed,
         };
 
+        const newMeasurement = new Measurement(weatherData);
+        await newMeasurement.save();
+
         res.json(weatherData);
     } catch (error) {
         console.error('Error fetching data from OpenWeather:', error);
@@ -32,10 +35,48 @@ router.get('/weather', async (req, res) => {
 });
 
 router.get('/measurements', async (req, res) => {
-    const { start_date, end_date } = req.query;
+    const { start_date, end_date, field } = req.query;
 
-    console.log('Start Date:', start_date);
-    console.log('End Date:', end_date);
+    if (!field) {
+        return res.status(400).json({ error: 'Field must be specified' });
+    }
+
+    const startDate = start_date ? new Date(start_date) : new Date(0);
+    const endDate = end_date ? new Date(end_date) : new Date();
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return res.status(400).json({ error: 'Invalid date format' });
+    }
+
+    try {
+        const query = {
+            timestamp: {
+                $gte: startDate,
+                $lte: endDate
+            }
+        };
+
+        const measurements = await Measurement.find(query).select(`timestamp ${field}`);
+
+        if (measurements.length === 0) {
+            return res.status(404).json({ error: 'No data available' });
+        }
+
+        res.json(measurements.map(item => ({
+            timestamp: item.timestamp.toISOString(),
+            [field]: item[field]
+        })));
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).json({ error: 'Failed to fetch data' });
+    }
+});
+
+router.get('/measurements/metrics', async (req, res) => {
+    const { field, start_date, end_date } = req.query;
+
+    if (!field) {
+        return res.status(400).json({ error: 'Field (temperature, humidity, or windSpeed) must be specified' });
+    }
 
     const startDate = start_date ? new Date(start_date) : new Date(0);
     const endDate = end_date ? new Date(end_date) : new Date();
@@ -45,48 +86,40 @@ router.get('/measurements', async (req, res) => {
     }
 
     try {
-        const measurements = await Measurement.find({
-            createdAt: {
+        const query = {
+            timestamp: { 
                 $gte: startDate,
                 $lte: endDate
             }
-        });
+        };
+
+        const measurements = await Measurement.find(query).select(field);
 
         if (measurements.length === 0) {
-            return res.status(404).json({ error: 'No data available' });
+            return res.status(404).json({ error: 'No data for analysis' });
         }
 
-        res.json(measurements);
+        const values = measurements.map(item => item[field]).filter(Number.isFinite);
+
+        if (!values.length) {
+            return res.status(404).json({ error: 'No valid data for analysis' });
+        }
+
+        const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const stdDev = Math.sqrt(values.reduce((sum, val) => sum + (val - avg) ** 2, 0) / values.length);
+
+        res.json({
+            avg: avg.toFixed(2),
+            min,
+            max,
+            stdDev: stdDev.toFixed(2)
+        });
     } catch (error) {
-        console.error('Error fetching measurement data:', error);
-        res.status(500).json({ error: 'Failed to fetch measurement data' });
+        console.error('Error fetching measurement data for metrics:', error);
+        res.status(500).json({ error: 'Failed to fetch measurement data for metrics' });
     }
-});
-
-router.get('/measurements/metrics', (req, res) => {
-    const { field } = req.query;
-
-    if (!field) {
-        return res.status(400).json({ error: 'Field (temperature, humidity, or windSpeed) must be specified' });
-    }
-
-    const values = mockData.map(item => item[field]).filter(Number.isFinite);
-
-    if (!values.length) {
-        return res.status(404).json({ error: 'No data for analysis' });
-    }
-
-    const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const stdDev = Math.sqrt(values.reduce((sum, val) => sum + (val - avg) ** 2, 0) / values.length);
-
-    res.json({
-        avg: avg.toFixed(2),
-        min,
-        max,
-        stdDev: stdDev.toFixed(2)
-    });
 });
 
 router.post('/measurements', async (req, res) => {
