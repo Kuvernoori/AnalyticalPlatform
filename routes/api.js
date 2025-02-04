@@ -58,7 +58,7 @@ router.get('/measurements', async (req, res) => {
         const measurements = await Measurement.find(query).select(`timestamp ${field}`);
 
         if (measurements.length === 0) {
-            return res.status(404).json({ error: 'No data available' });
+            return res.status(404).json({ error: 'No data available for the selected date range' });
         }
 
         res.json(measurements.map(item => ({
@@ -87,7 +87,7 @@ router.get('/measurements/metrics', async (req, res) => {
 
     try {
         const query = {
-            timestamp: { 
+            timestamp: {
                 $gte: startDate,
                 $lte: endDate
             }
